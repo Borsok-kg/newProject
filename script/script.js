@@ -54,15 +54,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
     countTimer('25 mar 2021');
 
-    // Меню
+    // Menu
     const toggleMenu = () =>  {
         const btnMenu = document.querySelector('.menu'),
             menu = document.querySelector('menu');
 
         btnMenu.addEventListener('click', () => menu.classList.add('active-menu'));
 
-        menu.addEventListener('click', (event) => {
-            let target = event.target;
+        menu.addEventListener('click', event => {
+            const target = event.target;
             if (target.classList.contains('close-btn')) {
                 menu.classList.toggle('active-menu');
             } else if (target.tagName === 'A') {
@@ -116,7 +116,7 @@ window.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        popUp.addEventListener('click', (event) => {
+        popUp.addEventListener('click', event => {
             let target = event.target;
             if (target.classList.contains('popup-close')) {
                 popUp.style.display = 'none';
@@ -257,4 +257,130 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     slider();
+
+    // Photo teams
+    const image = () => {
+        const photoCommand = document.querySelectorAll('#command .row img');
+
+        let url;
+        photoCommand.forEach(item => {
+            item.addEventListener('mouseenter', event => {
+                const target = event.target;
+                url = target.src;
+                target.src = target.getAttribute('data-img');
+            });
+
+            item.addEventListener('mouseout', event => {
+                const target = event.target;
+                target.src = url;
+            });
+        });
+    };
+
+    image();
+
+    // Изменение ввода
+
+    const correctnessOfInput = () => {
+        const calc = document.getElementById('calc'),
+            mainForm = document.querySelector('.main-form'),
+            popUpForm = document.querySelector('.popup'),
+            connect = document.querySelector('.connect');
+
+        const onlyNumbers = e => {
+            const target = e.target;
+            if (target.matches('input')) {
+                target.value = target.value.replace(/\D/, '');
+            }
+        };
+
+        calc.addEventListener('input', onlyNumbers);
+
+        const onlyLetters = e => {
+            const target = e.target;
+            if (target.closest('#form2-name, #form2-message')) {
+                target.value = target.value.replace(/[^а-яА-Я -]/, '');
+            } else if (target.closest('#form2-email')) {
+                target.value = target.value.replace(/ +/, '');
+                target.value = target.value.replace(/[^a-zA-Z\@\_\-\~\.\!\*]/, '');
+            } else if (target.closest('#form2-phone')) {
+                target.value = target.value.replace(/[^1-9\(\)]/, '');
+            }
+        };
+
+        const blur = e => {
+
+            const target = e.target;
+            let newMas = [];
+            if (target.closest('#form2-name')) {
+                target.value = target.value.replace(/[\-]+/, '-');
+                const mas = target.value.split(/[\s,\-]+/);
+                mas.forEach(item => {
+                    newMas.push(item[0].toUpperCase() + item.substring(1).toLowerCase());
+                });
+
+                newMas = newMas.join(' ');
+                target.value = newMas;
+            } else if (target.closest('#form2-email')) {
+                target.value.trim();
+            }
+        };
+
+        const blur1 = e => {
+
+            const target = e.target;
+            let newMas = [];
+            if (target.closest('.form-name')) {
+                target.value = target.value.replace(/[\-]+/, '-');
+                const mas = target.value.split(/[\s,\-]+/);
+                mas.forEach(item => {
+                    newMas.push(item[0].toUpperCase() + item.substring(1).toLowerCase());
+                });
+
+                newMas = newMas.join(' ');
+                target.value = newMas;
+            } else if (target.closest('form-email')) {
+                target.value.trim();
+            }
+        };
+
+        connect.addEventListener('input', onlyLetters);
+        connect.addEventListener('focusout', blur);
+
+        const checkMainForm = event => {
+            const target = event.target;
+
+            if (target === target.closest('.form-name')) {
+                target.value = target.value.replace(/[^а-яА-Я -]/, '');
+            } else if (target === target.closest('.form-email')) {
+                target.value = target.value.replace(/ +/, '');
+                target.value = target.value.replace(/[^a-zA-Z\@\_\-\~\.\!\*]/, '');
+            } else if (target === target.closest('.form-phone')) {
+                target.value = target.value.replace(/[^1-9\(\)]/, '');
+            } else { return; }
+        };
+
+        mainForm.addEventListener('input', checkMainForm);
+        mainForm.addEventListener('focusout', blur1);
+
+        const popUpChange = event => {
+            const target = event.target;
+
+            if (target === target.closest('.form-name')) {
+                target.value = target.value.replace(/[^а-яА-Я -]/, '');
+            } else if (target === target.closest('.form-email')) {
+                target.value = target.value.replace(/ +/, '');
+                target.value = target.value.replace(/[^a-zA-Z\@\_\-\~\.\!\*]/, '');
+            } else if (target === target.closest('.form-phone')) {
+                target.value = target.value.replace(/[^1-9\(\)]/, '');
+            } else { return; }
+        };
+
+        popUpForm.addEventListener('input', popUpChange);
+        popUpForm.addEventListener('focusout', blur1);
+    };
+
+    correctnessOfInput();
+
 });
+
