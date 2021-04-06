@@ -333,7 +333,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 target.value = target.value.replace(/[\-]+/, '-');
                 const mas = target.value.split(/[\s,\-]+/);
                 mas.forEach(item => {
-                    newMas.push(item[0].toUpperCase() + item.substring(1).toLowerCase());
+                    newMas.push(item.slice(0, 1).toUpperCase() + item.substring(1).toLowerCase());
                 });
 
                 newMas = newMas.join(' ');
@@ -428,98 +428,28 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Send ajax form
     const sendForm = () => {
-        const cleanInputs = () => {
-            const input = document.querySelectorAll('input');
-            input.forEach(item => {
-                item.value = '';
-            });
-        };
-
+        const body = {};
         const errorMessage = 'Что то пошло не так...',
             loadMessage = 'Загрузка',
             successMessage = 'Спасибо! Мы скоро с вами свяжемся';
 
-        const form = document.getElementById('form1'),
-            formbottom = document.getElementById('form2'),
-            formModal = document.getElementById('form3');
-
         const statusMessage = document.createElement('div');
         statusMessage.style.cssText = 'font-size: 2rem; color: red;';
 
-        form.addEventListener('submit', event => {
-            event.preventDefault();
-            form.appendChild(statusMessage);
-            statusMessage.textContent = loadMessage;
-
-            const formData = new FormData(form);
-
-            const body = {};
-
-            formData.forEach((val, key) => {
-                body[key] = val;
-            });
-
-            postData(body, () => {
-                statusMessage.textContent = successMessage;
-            }, error => {
-                statusMessage.textContent = errorMessage;
-            });
-        });
-
-        formbottom.addEventListener('submit', event => {
-            event.preventDefault();
-            formbottom.appendChild(statusMessage);
-            statusMessage.textContent = loadMessage;
-
-            const formData = new FormData(formbottom);
-
-            const body = {};
-
-            formData.forEach((val, key) => {
-                body[key] = val;
-            });
-
-            postData(body, () => {
-                statusMessage.textContent = successMessage;
-            }, error => {
-                statusMessage.textContent = errorMessage;
-            });
-        });
-
-        formModal.addEventListener('submit', event => {
-            event.preventDefault();
-            formModal.appendChild(statusMessage);
-            statusMessage.textContent = loadMessage;
-
-            const formData3 = new FormData(formModal);
-
-            const body = {};
-
-            formData3.forEach((val, key) => {
-                body[key] = val;
-            });
-
-            postData(body, () => {
-                statusMessage.textContent = successMessage;
-            }, error => {
-                statusMessage.textContent = errorMessage;
-            });
-        });
-
-        const postData = (body, outputData, errorData) => {
+        const postData = body => new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
 
             request.addEventListener('readystatechange', () => {
+                statusMessage.textContent = loadMessage;
 
                 if (request.readyState !== 4) {
                     return;
                 }
 
                 if (request.status === 200) {
-                    outputData();
-                    cleanInputs();
+                    resolve();
                 } else {
-                    errorData(request.status);
+                    reject(request.status);
                 }
             });
 
@@ -527,7 +457,41 @@ window.addEventListener('DOMContentLoaded', () => {
             request.setRequestHeader('Content-type', 'application/json');
 
             request.send(JSON.stringify(body));
-        };
+        });
+
+        const form = document.querySelectorAll('form');
+        form.forEach(item => {
+            item.addEventListener('submit', event => {
+                event.preventDefault();
+                item.appendChild(statusMessage);
+
+                const formData = new FormData(item);
+
+                formData.forEach((val, key) => {
+                    body[key] = val;
+                });
+
+                postData(body)
+                    .then(() => {
+                        setTimeout(() => {
+                            statusMessage.textContent = successMessage;
+                            form.forEach(item => {
+                                item.reset();
+                            });
+                        }, 2000);
+                        setTimeout(() => {
+                            const popupClose = document.querySelector('.popup');
+                            popupClose.style.display = 'none';
+                            statusMessage.textContent = '';
+                        }, 3500);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        statusMessage.textContent = errorMessage;
+                    });
+            });
+        });
+
     };
 
     sendForm();
