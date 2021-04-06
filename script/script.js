@@ -428,41 +428,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Send ajax form
     const sendForm = () => {
-        const body = {};
         const errorMessage = 'Что то пошло не так...',
             loadMessage = 'Загрузка',
-            successMessage = 'Спасибо! Мы скоро с вами свяжемся';
+            successMessage = 'Спасибо! Мы скоро с вами свяжемся',
+            body = {},
+            form = document.querySelectorAll('form');
 
         const statusMessage = document.createElement('div');
         statusMessage.style.cssText = 'font-size: 2rem; color: red;';
 
-        const postData = body => new Promise((resolve, reject) => {
-            const request = new XMLHttpRequest();
-
-            request.addEventListener('readystatechange', () => {
-                statusMessage.textContent = loadMessage;
-
-                if (request.readyState !== 4) {
-                    return;
-                }
-
-                if (request.status === 200) {
-                    resolve();
-                } else {
-                    reject(request.status);
-                }
-            });
-
-            request.open('POST', './server.php');
-            request.setRequestHeader('Content-type', 'application/json');
-
-            request.send(JSON.stringify(body));
+        const postData = body => fetch('./server.php', {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(body)
         });
 
-        const form = document.querySelectorAll('form');
         form.forEach(item => {
             item.addEventListener('submit', event => {
                 event.preventDefault();
+                statusMessage.textContent = loadMessage;
                 item.appendChild(statusMessage);
 
                 const formData = new FormData(item);
@@ -472,21 +458,23 @@ window.addEventListener('DOMContentLoaded', () => {
                 });
 
                 postData(body)
-                    .then(() => {
+                    .then(response => {
+                        if (response.status !== 200) {
+                            throw new Error();
+                        }
+                        statusMessage.textContent = successMessage;
+                        form.forEach(item => {
+                            item.reset();
+                        });
                         setTimeout(() => {
-                            statusMessage.textContent = successMessage;
-                            form.forEach(item => {
-                                item.reset();
-                            });
-                        }, 2000);
-                        setTimeout(() => {
-                            const popupClose = document.querySelector('.popup');
-                            popupClose.style.display = 'none';
+                            if (item.matches('#form3')) {
+                                const popupClose = document.querySelector('.popup');
+                                popupClose.style.display = 'none';
+                            }
                             statusMessage.textContent = '';
                         }, 3500);
                     })
-                    .catch(error => {
-                        console.error(error);
+                    .catch(() => {
                         statusMessage.textContent = errorMessage;
                     });
             });
