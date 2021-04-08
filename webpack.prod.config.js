@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: ["./src/js/index.js"],
+    entry: ["./src/index.js"],
     output: {
         filename: 'bungle.js',
         path: path.resolve(__dirname, './dist')
@@ -14,7 +14,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ["env", "react"]
+                        presets: ['@babel/env']
                     },
                 },
                 exclude: /node_modules/,
