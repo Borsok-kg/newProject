@@ -28,7 +28,8 @@ const sendForm = () => {
                 body[key] = val;
             });
 
-            postData(body)
+            if (sendVerify(body)) {
+                postData(body)
                 .then(response => {
                     if (response.status !== 200) {
                         throw new Error();
@@ -48,8 +49,29 @@ const sendForm = () => {
                 .catch(() => {
                     statusMessage.textContent = errorMessage;
                 });
+            }
         });
     });
+
+    const sendVerify = (body) => {
+        if (body.user_name.length <= 1) {
+            statusMessage.textContent = 'В поле "Ваше имя" должно быть минимум 2 символа';
+            return false;
+        }
+        if (body.user_email === '') {
+            statusMessage.textContent = 'Пустое поле "E-mail"';
+            return false;
+        }
+        if (body.user_phone.length <= 7 || body.user_phone.length >= 12) {
+            statusMessage.textContent = 'В поле "Номер телефона" должно быть от 7 до 12 символов';
+            return false;
+        }
+        if (body.user_message === '') {
+            statusMessage.textContent = 'Введите сообщение';
+            return false;
+        }
+        return true;
+    };
 
 };
 

@@ -12,7 +12,7 @@ import calc from './modules/calc';
 import sendForm from './modules/sendForm';
 
 // timer
-countTimer('25 mar 2021');
+countTimer('15 apr 2021');
 
 // Menu
 toggleMenu();
@@ -37,3 +37,4 @@ calc(100);
 
 // Send ajax form
 sendForm();
+
